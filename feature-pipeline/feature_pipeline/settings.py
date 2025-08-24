@@ -44,3 +44,6 @@ OUTPUT_DIR = ML_PIPELINE_ROOT_DIR / "output"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 SETTINGS = load_env_vars(root_dir=ML_PIPELINE_ROOT_DIR)
+
+print("ROOT_DIR:",ML_PIPELINE_ROOT_DIR)
+print("FS_API_KEY:", FS_API_KEY)
