@@ -1,0 +1,76 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+
+# === Virtual Environment ===
+myenv/
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+*.env
+.env.*
+
+# === IDEs & Editors ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+
+# === Logs & Temp Files ===
+*.log
+*.tmp
+*.bak
+
+# === Coverage, Testing, and Linting ===
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.pytest_cache/
+
+# === MLflow ===
+mlruns/
+mlartifacts/
+
+# === ZenML ===
+.zenml/
+zenml_*
+
+# === HuggingFace Transformers ===
+.cache/
+~/.cache/
+~/.cache/huggingface/
+~/.huggingface/
+
+# === PyTorch ===
+~/.cache/torch/
+
+# === Pip ===
+pip-wheel-metadata/
+poetry.lock
+
+# === Models & Artifacts ===
+*.pkl
+*.pt
+*.joblib
+*.onnx
+models/
+checkpoints/
+runs/

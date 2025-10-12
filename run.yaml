@@ -1,0 +1,23 @@
+person: 1
+role:
+  Company: "Accenture"
+  name: "Abinash"
+  Experience:
+    - testing: 2
+    - ML: 1
+  description: |
+    Worked as a manual tester and now switching domain to Machine learning
+    Hard work never fails is the moto of him
+  Favourites:
+    hobby: &base
+      1: reading
+      2: Smiling
+    Likes:
+      Work: Except some 
+      Personal: Movies, sports and people
+      <<: *base
+    Dislikes:
+      Work: Nandhini
+      Personal: No one
+  
+    
