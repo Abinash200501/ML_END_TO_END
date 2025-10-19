@@ -42,7 +42,7 @@ def main(
     end_to_end: bool,
     batch_size: int
 ):
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("")
     mlflow.set_experiment("Spam_Classifier_Experiment")
 
     print(f"Flags - load_data={load_data}, train_model={train_model}, "

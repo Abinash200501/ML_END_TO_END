@@ -4,13 +4,20 @@ import pickle
 from message import Message
 import torch
 from pathlib import Path
+import subprocess
 
 app = FastAPI()
 
 model_path = Path("saved_model") / "model.pkl"
 
+if not model_path.exists():
+    print("Model not found locally...pulling it from DVC")
+    subprocess.run(["dvc","pull",str(model_path)], check=True)
+
+
 with open(model_path, "rb") as f:
-    model_data = pickle.load(f) 
+    model_data = pickle.load(f)
+
 model = model_data['model']
 tokenizer = model_data['tokenizer']
 
@@ -41,5 +48,5 @@ def predict(message: Message):
         return {"prediction": "Valid message"}
     
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
