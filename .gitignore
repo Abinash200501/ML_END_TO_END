@@ -12,7 +12,7 @@ build/
 *.spec
 
 # === Secrets === #
-.pem
+*.pem
 
 # === Virtual Environment ===
 myvenv/
