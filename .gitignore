@@ -10,7 +10,7 @@ dist/
 build/
 *.manifest
 *.spec
-.dvc/cache
+.dvc/cache/
 
 # === Secrets === #
 mlopsproject.pem
