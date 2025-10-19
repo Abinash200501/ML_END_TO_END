@@ -11,6 +11,9 @@ build/
 *.manifest
 *.spec
 
+# === Secrets === #
+.pem
+
 # === Virtual Environment ===
 myvenv/
 myenv/
