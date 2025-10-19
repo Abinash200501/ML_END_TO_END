@@ -12,7 +12,7 @@ build/
 *.spec
 
 # === Secrets === #
-*.pem
+mlopsproject.pem
 
 # === Virtual Environment ===
 myvenv/
