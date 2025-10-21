@@ -30,24 +30,39 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Cache virtualenv
+        uses: actions/cache@v3
+        with:
+          path: ~/myenv
+          key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-venv-
+
       - name: Activate virtual env and Install dependencies
         run: |
           set -e
           if [ ! -d ~/myenv ]; then
+            echo "No virtual environment so creating one...."
             sudo apt-get install -y python3-venv
             python3 -m venv ~/myenv
+            source ~/myenv/bin/activate
+            python -m pip install --upgrade pip
+            if [ -f requirements.txt ]; then
+              pip install -r requirements.txt
+            fi
+          else
+            echo "Using existing virtual environment"
+            source ~/myenv/bin/activate
+            pip check || pip install -r requirements.txt
           fi
-          source ~/myenv/bin/activate
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          which python
+          pip list
 
       - name: Train and Evaluate model
         run: |
           set -e
           source ~/myenv/bin/activate
-          pip install zenml[server]
+          pip show zenml || pip install zenml[server]
           python run_pipeline.py --load-data --path "data/SMSSpamCollection"
           python run_pipeline.py --train-model --num-epochs 2 --num-of-labels 1 --learning-rate 0.00001
           python run_pipeline.py --evaluate-model
