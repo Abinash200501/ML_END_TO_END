@@ -1,0 +1,143 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci_pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      CI_COMMIT_MESSAGE: "Continuous Integration Build Artifacts"
+      CI_COMMIT_AUTHOR: "Continuous Integration"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Activate virtual env and Install dependencies
+        run: |
+          set -e
+          source ~/myenv/bin/activate
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Train and Evaluate model
+        run: |
+          set -e
+          python run_pipeline.py --load-data --path "data/SMSSpamCollection"
+          python run_pipeline.py --train-model --num_epoch 2 --num_of_labels 1 --learning-rate 0.00001
+          python run_pipeline.py --evaluate-model
+
+      - name: Accuracy check
+        run: |
+          set -e
+          python accuracy.py
+          if [ -f accuracy.txt ]; then
+            git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+            git config --global user.email "abinashdevendran@gmail.com"
+            git add accuracy.txt
+            git commit -m "${{ env.CI_COMMIT_MESSAGE }}" || echo "No changes to commit"
+            git push
+          fi
+
+      - name: Threshold check
+        run: |
+          set -e
+          accuracy=$(cat accuracy.txt)
+          threshold=0.90
+          if (( $(echo "$accuracy < $threshold" | bc -l) )); then
+            echo "Model accuracy $accuracy is below threshold $threshold. Failing..."
+            exit 1
+          else
+            echo "Model accuracy $accuracy meets threshold $threshold. Proceeding..."
+          fi
+
+      - name: Configure DVC
+        run: |
+          set -e
+          dvc add saved_model/model.pkl
+
+      - name: Commit and push DVC changes
+        run: |
+          set -e
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "abinashdevendran@gmail.com"
+          git add .
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}" || echo "No changes to commit"
+          git push
+          dvc push
+
+  cd_pipeline:
+    runs-on: self-hosted
+    needs: ci_pipeline
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get model from DVC
+        run: |
+          set -e
+          dvc pull saved_model/model.pkl
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: latest
+        run: |
+          set -e
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Pull latest image
+        run: |
+          set -e
+          docker rm -f $(docker ps -q) || true
+          docker rmi $(docker images -q) || true
+          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      - name: Run Docker Image
+        run: |
+          set -e
+          docker run -d -p 8000:8000 \
+            --name spam_classifier \
+            -e AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}' \
+            -e AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}' \
+            -e AWS_REGION='${{ secrets.AWS_REGION }}' \
+            ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      - name: Cleanup
+        run: |
+          rm -f model.pkl
+          docker system prune -f
