@@ -12,6 +12,7 @@ jobs:
     env:
       CI_COMMIT_MESSAGE: "Continuous Integration Build Artifacts"
       CI_COMMIT_AUTHOR: "Continuous Integration"
+      MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
 
     steps:
       - name: Checkout code
@@ -28,8 +29,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-          mlflow-uri: ${{secrets.MLFLOW_TRACKING_URI}}
-          
+
       - name: Activate virtual env and Install dependencies
         run: |
           set -e
