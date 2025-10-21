@@ -45,6 +45,7 @@ jobs:
       - name: Train and Evaluate model
         run: |
           set -e
+          source ~/myenv/bin/activate
           python run_pipeline.py --load-data --path "data/SMSSpamCollection"
           python run_pipeline.py --train-model --num_epoch 2 --num_of_labels 1 --learning-rate 0.00001
           python run_pipeline.py --evaluate-model
