@@ -54,6 +54,7 @@ jobs:
             echo "Using existing virtual environment"
             source ~/myenv/bin/activate
             pip check || pip install -r requirements.txt
+            pip show zenml || pip install zenml[server]
           fi
           which python
           pip list
@@ -62,7 +63,6 @@ jobs:
         run: |
           set -e
           source ~/myenv/bin/activate
-          pip show zenml || pip install zenml[server]
           python run_pipeline.py --load-data --path "data/SMSSpamCollection"
           python run_pipeline.py --train-model --num-epochs 2 --num-of-labels 1 --learning-rate 0.00001
           python run_pipeline.py --evaluate-model
