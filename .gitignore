@@ -80,3 +80,4 @@ poetry.lock
 models/
 checkpoints/
 runs/
+/saved_model
