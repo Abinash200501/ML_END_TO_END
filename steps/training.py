@@ -104,7 +104,7 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
 
     components = {"model":model, "tokenizer":tokenizer}
 
-    mlflow.transformers.log_model(transformers_model=components, task="text-classification", artifact_path="model")
+    mlflow.transformers.log_model(transformers_model=components, task="text-classification", name="model")
 
     
     save_path = Path("saved_model")

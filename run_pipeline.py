@@ -42,9 +42,6 @@ def main(
     end_to_end: bool,
     batch_size: int
 ):
-    mlflow.set_tracking_uri("")
-    mlflow.set_experiment("Spam_Classifier_Experiment")
-
     print(f"Flags - load_data={load_data}, train_model={train_model}, "
           f"evaluate_model={evaluate_model}, end_to_end={end_to_end}")
 
@@ -81,4 +78,7 @@ def main(
 
 
 if __name__ == "__main__":
+
+    mlflow.set_tracking_uri("http://ec2-3-208-1-178.compute-1.amazonaws.com:5000/")
+    mlflow.set_experiment("Spam_Classifier_Experiment")
     main()

@@ -15,8 +15,8 @@ if not model_path.exists():
     subprocess.run(["dvc","pull",str(model_path)], check=True)
 
 
-with open(model_path, "rb") as f:
-    model_data = pickle.load(f)
+model_data = torch.load(model_path, map_location=torch.device("cpu"), weights_only=False)
+
 
 model = model_data['model']
 tokenizer = model_data['tokenizer']

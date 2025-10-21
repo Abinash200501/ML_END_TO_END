@@ -95,8 +95,7 @@ def evaluation_model(model : BertForSequenceClassification,
 
         save_path = Path("saved_model")
         save_path.mkdir(exist_ok=True, parents=True)
-        with open(save_path/"model.pkl", "wb") as f:
-            pickle.dump(model_dict, f)
+        torch.save(model_dict, save_path / "model.pkl")
         logging.info("Model is saved for deployment")
     else:
         logging.info("Not good enough to save the model")
@@ -104,4 +103,3 @@ def evaluation_model(model : BertForSequenceClassification,
     return accuracy, precision, recall, f1_score
 
 
-    
