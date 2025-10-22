@@ -13,3 +13,4 @@ zenml==0.90.0
 boto3==1.40.49
 dvc==3.63.0
 dvc[s3]
+sqlalchemy-utils
