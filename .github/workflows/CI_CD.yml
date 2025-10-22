@@ -62,8 +62,7 @@ jobs:
           dvc remote list
           echo "Attempting to pull model from remote..."
           dvc pull saved_model/model.pkl || echo "No existing model found to pull."
-          echo "Contents of saved_model:"
-          ls -lh saved_model/
+          
 
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
