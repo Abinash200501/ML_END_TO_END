@@ -81,6 +81,7 @@ jobs:
       - name: Accuracy check
         run: |
           set -e
+          source ~/myenv/bin/activate
           python accuracy.py
           if [ -f accuracy.txt ]; then
             git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
@@ -93,6 +94,7 @@ jobs:
       - name: Threshold check
         run: |
           set -e
+          source ~/myenv/bin/activate
           accuracy=$(cat accuracy.txt)
           threshold=0.90
           echo "accuracy=$accuracy" >> $GITHUB_OUTPUT
@@ -116,6 +118,7 @@ jobs:
         if: success()
         run: |
           set -e
+          source ~/myenv/bin/activate
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "abinashdevendran@gmail.com"
           git add saved_model/model.pkl.dvc saved_model/.gitignore
@@ -151,12 +154,18 @@ jobs:
       - name: Install Python and DVC
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip
+          sudo apt-get install -y python3-pip python3-venv
+          if [ ! -d ~/myenv ]; then
+            python3 -m venv ~/myenv
+          fi
+          source ~/myenv/bin/activate
+          pip install --upgrade pip
           pip install dvc[s3]
 
       - name: Get model from DVC
         run: |
           set -e
+          source ~/myenv/bin/activate
           dvc pull saved_model/model.pkl
           ls -lh saved_model/
 
