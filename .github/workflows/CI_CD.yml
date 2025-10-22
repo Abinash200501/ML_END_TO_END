@@ -42,27 +42,28 @@ jobs:
         run: |
           set -e
           if [ ! -d ~/myenv ]; then
-            echo "No virtual environment so creating one...."
+            echo "Creating virtual environment..."
             sudo apt-get install -y python3-venv
             python3 -m venv ~/myenv
-            source ~/myenv/bin/activate
-            python -m pip install --upgrade pip
-            if [ -f requirements.txt ]; then
-              pip install -r requirements.txt
-            fi
-          else
-            echo "Using existing virtual environment"
-            source ~/myenv/bin/activate
-            pip check || pip install -r requirements.txt
-            pip show zenml || pip install zenml[server]
           fi
-          which python
-          pip list
+          source ~/myenv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install 'dvc[s3]'
+          pip show zenml || pip install zenml[server]
 
-      - name: Pull existing model from DVC cache (if exists)
+      - name: Install DVC and pull existing model
         run: |
           set -e
+          source ~/myenv/bin/activate
+          echo "DVC version:"
+          dvc --version
+          echo "Configured DVC remotes:"
+          dvc remote list
+          echo "Attempting to pull model from remote..."
           dvc pull saved_model/model.pkl || echo "No existing model found to pull."
+          echo "Contents of saved_model:"
+          ls -lh saved_model/
 
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
@@ -99,13 +100,14 @@ jobs:
             echo "Model accuracy $accuracy is below threshold $threshold. Failing..."
             exit 1
           else
-            echo "Model accuracy $accuracy meets threshold $threshold. Proceeding..."
+            echo "Model accuracy $accuracy meets threshold $threshold."
           fi
 
-      - name: Configure DVC (only if model was trained)
+      - name: Configure and track model with DVC
         if: success()
         run: |
           set -e
+          source ~/myenv/bin/activate
           if [ -f saved_model/model.pkl ]; then
             dvc add saved_model/model.pkl
           fi
@@ -116,11 +118,7 @@ jobs:
           set -e
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "abinashdevendran@gmail.com"
-
-          # Stage DVC-tracked files only
           git add saved_model/model.pkl.dvc saved_model/.gitignore
-
-          # Only commit if there are actual changes
           if ! git diff --cached --quiet; then
             echo "Changes detected in model. Committing..."
             git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
@@ -128,8 +126,7 @@ jobs:
           else
             echo "No changes in model. Skipping commit."
           fi
-
-          # Push to DVC remote storage
+          source ~/myenv/bin/activate
           dvc push
 
   cd_pipeline:
@@ -151,10 +148,17 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Install Python and DVC
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip install dvc[s3]
+
       - name: Get model from DVC
         run: |
           set -e
           dvc pull saved_model/model.pkl
+          ls -lh saved_model/
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
