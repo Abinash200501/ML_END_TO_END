@@ -64,7 +64,7 @@ jobs:
           set -e
           source ~/myenv/bin/activate
           python run_pipeline.py --load-data --path "data/SMSSpamCollection"
-          python run_pipeline.py --train-model --num-epochs 2 --num-of-labels 1 --learning-rate 0.00001
+          python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001
           python run_pipeline.py --evaluate-model
 
       - name: Accuracy check
@@ -84,6 +84,7 @@ jobs:
           set -e
           accuracy=$(cat accuracy.txt)
           threshold=0.90
+          echo "accuracy=$accuracy" >> $GITHUB_OUTPUT
           if (( $(echo "$accuracy < $threshold" | bc -l) )); then
             echo "Model accuracy $accuracy is below threshold $threshold. Failing..."
             exit 1
@@ -92,11 +93,13 @@ jobs:
           fi
 
       - name: Configure DVC
+        if: success()
         run: |
           set -e
           dvc add saved_model/model.pkl
 
       - name: Commit and push DVC changes
+        if: success()
         run: |
           set -e
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
