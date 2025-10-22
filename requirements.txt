@@ -4,7 +4,7 @@ aiobotocore==2.25.0
 fastapi==0.115.8
 uvicorn==0.37.0
 mlflow==3.4.0
-zenml==0.85.0
+zenml==0..0
 pandas==2.3.3
 numpy==1.26.4
 scikit-learn==1.4.0
