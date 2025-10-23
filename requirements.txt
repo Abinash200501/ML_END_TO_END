@@ -19,3 +19,5 @@ dvc[s3]
 datasets
 boto3
 pymysql
+sqlmodel
+passlib
