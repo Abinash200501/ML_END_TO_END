@@ -59,7 +59,7 @@ jobs:
           if ! zenml project list | grep -q "default"; then
             zenml project create default --description "Default project for CI"
           fi
-          zenml project set-active default
+          zenml project set default
           zenml login --local
 
       - name: Install DVC and pull existing model
