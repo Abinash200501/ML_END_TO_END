@@ -109,10 +109,10 @@ jobs:
           threshold=0.90
           echo "accuracy=$accuracy" >> $GITHUB_OUTPUT
           if (( $(echo "$accuracy < $threshold" | bc -l) )); then
-            echo "Model accuracy $accuracy is below threshold $threshold. Failing..."
+            echo "Model accuracy $accuracy% is below threshold $threshold. Failing..."
             exit 1
           else
-            echo "Model accuracy $accuracy meets threshold $threshold."
+            echo "Model accuracy $accuracy% meets threshold $threshold."
           fi
 
       - name: Configure and track model with DVC
