@@ -41,7 +41,7 @@ jobs:
       - name: Activate Virtual Env and Install dependencies
         run: |
           set -e
-          if [! -d ~/myenv ]; then
+          if [ ! -d ~/myenv ]; then
             echo "Creating virtual environment..."
             sudo apt-get install -y python3-venv
             python3 -m venv ~/myenv
