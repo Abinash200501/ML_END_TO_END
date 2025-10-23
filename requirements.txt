@@ -21,4 +21,4 @@ boto3
 pymysql
 sqlmodel
 passlib
-sqlalchemy_utils
+sqlalchemy==2.0.44
