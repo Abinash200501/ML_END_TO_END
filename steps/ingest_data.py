@@ -11,7 +11,7 @@ class Ingest:
         logging.info(f"Ingesting data from data path {self.path}")
         return pd.read_csv(self.path, sep='\t', names=['labels', 'Messages'])
     
-@step
+@step(enable_cache=False)
 def ingester(data_path : str) -> pd.DataFrame:
 
     try:
