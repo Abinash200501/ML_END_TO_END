@@ -51,38 +51,8 @@ jobs:
           pip install -r requirements.txt
           pip install 'dvc[s3]'
           pip install --upgrade "zenml[server]==0.90.0"
-
-      - name: Setup and start ZenML local server
-        run: |
-          set -e
-          source ~/myenv/bin/activate
-
-          # Ensure ZenML with server extras is installed
-          pip install --upgrade "zenml[server]==0.90.0"
-
-          echo "Initializing ZenML repository (if needed)..."
-          zenml init || echo "ZenML repo already initialized."
-
-          echo "Starting ZenML local server (non-blocking)..."
-          zenml start --no-blocking > zenml_server.log 2>&1 &
-
-          echo "Waiting 25 seconds for ZenML server to start..."
-          sleep 25
-
-          echo "Checking ZenML server status..."
-          if ! zenml status; then
-            echo "ZenML server failed to start. Dumping logs..."
-            cat zenml_server.log || true
-            cat ~/.config/zenml/zenml.log || true
-            exit 1
-          fi
-
-          echo "Ensuring default project exists..."
-          if ! zenml project list | grep -q "default"; then
-            zenml project register default --description "Default CI project"
-          fi
-          zenml project set default
-
+          pip show zenml
+          
 
       - name: Install DVC and pull existing model
         run: |
