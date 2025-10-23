@@ -60,8 +60,8 @@ jobs:
 
       - name: Check DVC version and pull existing model
         run: |
-          dvc --version
           source ~/myenv/bin/activate
+          dvc --version
           dvc remote list
           dvc pull saved_model/model.pkl || echo "No existing model found to pull."
 
