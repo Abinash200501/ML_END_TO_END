@@ -7,7 +7,7 @@ on:
 
 jobs:
   ci_pipeline:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     env:
       CI_COMMIT_MESSAGE: "Continuous Integration Build Artifacts"
@@ -49,8 +49,11 @@ jobs:
           if [ ! -f saved_model/model.pkl ]; then
             echo "No model found. Training new model..."
             python run_pipeline.py --load-data --path "data/SMSSpamCollection"
-            python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001
-            python run_pipeline.py --evaluate-model
+            if success(); then
+              python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001
+            if training_success; then
+             python run_pipeline.py --evaluate-model
+             echo "Model evaluated successfully.."
           else
             echo "Model already exists. Skipping training."
           fi
