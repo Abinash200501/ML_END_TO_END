@@ -52,6 +52,16 @@ jobs:
           pip install 'dvc[s3]'
           pip show zenml || pip install 'zenml[server]'
 
+      - name: Setup ZenML project
+        run: |
+          set -e
+          source ~/myenv/bin/activate
+          if ! zenml project list | grep -q "default"; then
+            zenml project create default --description "Default project for CI"
+          fi
+          zenml project set-active default
+          zenml login --local
+
       - name: Install DVC and pull existing model
         run: |
           set -e
