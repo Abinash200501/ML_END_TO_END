@@ -36,8 +36,6 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
             labels = labels.tolist()
         label_counter.update(labels)
 
-    logging.info(f"Label distribution before training: {label_counter}")
-
     logging.info("Model is training")
     model.train()
 
@@ -63,12 +61,6 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
 
             progress_bar.update(1)
             total_loss += loss.item()
-
-            if i % 100 == 0:
-                allocated = torch.cuda.memory_allocated() / 1024**2  # MB
-                reserved = torch.cuda.memory_reserved() / 1024**2    # MB
-                print(f"[GPU Memory] Allocated: {allocated:.2f} MB | Reserved: {reserved:.2f} MB")
-                print(f"Epoch {epoch_idx+1}/{epoch}, Step : {i}, Loss: {loss.item():.4f}")
         
         avg_loss = total_loss / len(training_data)
         mlflow.log_metric("average_loss", avg_loss, step=epoch_idx)
@@ -96,26 +88,10 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
         torch.cuda.empty_cache()
 
     logging.info("Training is finished")
- 
-    print("All labels : ", all_labels[:10])
-    print("Counter labels : ", Counter(all_labels))
-    print("All predicted : ", all_preds[:10])
-    print("Counter predicted labels : ", Counter(all_preds))
 
     components = {"model":model, "tokenizer":tokenizer}
 
     mlflow.transformers.log_model(transformers_model=components, task="text-classification", name="model")
-
-    
-    save_path = Path("saved_model")
-    save_path.mkdir(parents=True, exist_ok=True)
-    model_file = save_path / "trained_model.pkl"
-
-    with open(model_file, "wb") as f:
-        pickle.dump(model, f)
-
-    mlflow.log_artifact(str(model_file))
-    logging.info(f"Model saved to: {model_file.resolve()} and logged to MLflow.")
     
     return model
 
