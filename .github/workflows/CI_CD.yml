@@ -52,16 +52,6 @@ jobs:
           pip install 'dvc[s3]'
           pip install --upgrade "zenml[server]==0.90.0"
 
-      - name: Setup ZenML project
-        run: |
-          set -e
-          source ~/myenv/bin/activate
-          if ! zenml project list | grep -q "default"; then
-            zenml project create default --description "Default project for CI"
-          fi
-          zenml project set default
-          zenml login --local
-
       - name: Install DVC and pull existing model
         run: |
           set -e
