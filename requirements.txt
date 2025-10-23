@@ -21,3 +21,4 @@ boto3
 pymysql
 sqlmodel
 passlib
+sqlalchemy_utils
