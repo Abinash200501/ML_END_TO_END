@@ -54,14 +54,23 @@ jobs:
 
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
+          source ~/myenv/bin/activate
           if [ ! -f saved_model/model.pkl ]; then
             echo "No model found. Training new model..."
             python run_pipeline.py --load-data --path "data/SMSSpamCollection"
-            if success(); then
+            if [ $? -eq 0 ]; then
               python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001
-            if training_success; then
-             python run_pipeline.py --evaluate-model
-             echo "Model evaluated successfully.."
+              if [ $? -eq 0 ]; then
+                python run_pipeline.py --evaluate-model
+                echo "Model evaluated successfully.."
+              else
+                echo "Training failed."
+                exit 1
+              fi
+            else
+              echo "Loading data failed."
+              exit 1
+            fi
           else
             echo "Model already exists. Skipping training."
           fi
