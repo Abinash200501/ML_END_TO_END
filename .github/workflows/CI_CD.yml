@@ -52,7 +52,6 @@ jobs:
           pip install 'dvc[s3]'
           pip install --upgrade "zenml[server]==0.90.0"
 
-
       - name: Setup ZenML project
         run: |
           set -e
