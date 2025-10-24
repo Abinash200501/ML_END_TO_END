@@ -65,7 +65,16 @@ def oversample_dataset(data : pd.DataFrame, labels_name : str = 'labels') -> pd.
     logging.info(f"Original dataset size : {data.shape}")
     logging.info(f"Balanced dataset size : {balanced_dataset.shape}")
 
-    return balanced_dataset
+    majority_class_sample = data[data[labels_name] == 0].sample(500)
+    minority_class_sample = data[data[labels_name] == 1].sample(500)
+
+    dataset = pd.concat([majority_class_sample, minority_class_sample], axis=0)
+    dataset.reset_index(drop = True, inplace = True)
+
+    logging.info(f"Original dataset size : {data.shape}")
+    logging.info(f"Sample dataset size : {dataset.shape}")
+
+    return dataset
 
 @step
 def validation(data : pd.DataFrame) -> pd.DataFrame:
@@ -104,7 +113,6 @@ def split(data : pd.DataFrame) -> Tuple[Annotated[pd.DataFrame, "training_data"]
     logging.info("Preparing the dataset with train and test")
 
     training_data, testing_data = train_test_split(data, test_size=0.2, random_state=42)
-
     return training_data, testing_data 
 
 

@@ -22,8 +22,10 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     loss_fun = nn.BCEWithLogitsLoss()
-
     mlflow.log_param("loss_function","BCEWithLogitsLoss (unweighted)")
+
+    train_size = len(training_data.dataset)
+    mlflow.log_param("train_size", train_size)
 
     no_of_steps = epoch * len(training_data)
     progress_bar = tqdm(range(no_of_steps))
