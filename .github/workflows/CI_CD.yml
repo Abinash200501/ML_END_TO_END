@@ -67,23 +67,20 @@ jobs:
 
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
+          set -e
           source ~/myenv/bin/activate
           if [ ! -f saved_model/model.pkl ]; then
             echo "No model found. Training new model..."
-            python run_pipeline.py --load-data --path "data/SMSSpamCollection"
-            if [ $? -eq 0 ]; then
-              python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001
-              if [ $? -eq 0 ]; then
-                python run_pipeline.py --evaluate-model
-                echo "Model evaluated successfully.."
-              else
-                echo "Training failed."
-                exit 1
-              fi
-            else
-              echo "Loading data failed."
-              exit 1
-            fi
+            python run_pipeline.py --load-data --path "data/SMSSpamCollection" || { echo "Data loading failed"; exit 1; }
+            echo "Data loaded successfully."
+
+            echo "Starting model training..."
+            python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001 || { echo "Training failed"; exit 1; }
+            echo "Training completed."
+
+            echo "Running model evaluation..."
+            python run_pipeline.py --evaluate-model || { echo "Evaluation failed"; exit 1; }
+            echo "Model evaluated successfully."
           else
             echo "Model already exists. Skipping training."
           fi
@@ -105,6 +102,11 @@ jobs:
         run: |
           set -e
           source ~/myenv/bin/activate
+          echo "Checking model accuracy threshold..."
+          if [ ! -f accuracy.txt ]; then
+            echo "Error: accuracy.txt not found. Evaluation step may have failed."
+            exit 1
+          fi
           accuracy=$(cat accuracy.txt)
           threshold=0.90
           echo "accuracy=$accuracy" >> $GITHUB_OUTPUT
