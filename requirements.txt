@@ -10,6 +10,7 @@ torch==2.9.0
 click==8.2.1
 transformers==4.57.0
 pandas==2.3.3
+torchvision==0.24.0
 dvc
 dvc[s3]
 datasets
