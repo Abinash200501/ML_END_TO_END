@@ -133,6 +133,14 @@ jobs:
           fi
           dvc push
 
+  name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
   cd_pipeline:
     runs-on: self-hosted
     needs: ci_pipeline
@@ -152,7 +160,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Install Python and DVC
+      - name: Cache Python packages
+        uses: actions/cache@v3
+        with:
+          path: ~/myenv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Setup Python & DVC
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip python3-venv
@@ -160,8 +176,19 @@ jobs:
             python3 -m venv ~/myenv
           fi
           source ~/myenv/bin/activate
-          python3 -m pip install --upgrade pip
-          pip install dvc[s3]
+          pip install --upgrade pip
+          if ! pip show -r requirements.txt >/dev/null 2>&1; then
+            pip install -r requirements.txt
+          fi
+          if ! pip show dvc >/dev/null 2>&1; then
+            pip install dvc[s3]
+          fi
+
+      - name: Cache DVC model
+        uses: actions/cache@v3
+        with:
+          path: .dvc/cache
+          key: ${{ runner.os }}-dvc-${{ hashFiles('saved_model/model.pkl.dvc') }}
 
       - name: Get model from DVC
         run: |
@@ -176,16 +203,22 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          source ~/myenv/bin/activate
+          docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+                       -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Pull latest image and cleanup old containers/images
+      - name: Pull latest image and cleanup
         run: |
           source ~/myenv/bin/activate
-          docker rm -f $(docker ps -q) || true
-          docker rmi $(docker images -q) || true
-          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          containers=$(docker ps -q)
+          if [ -n "$containers" ]; then
+              docker rm -f $containers
+          fi
+          docker image prune -f
+          docker pull ${{ steps.login-ecr.outputs.registry }}/\
+          ${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
       - name: Run Docker container
         run: |
@@ -195,10 +228,10 @@ jobs:
             -e AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}' \
             -e AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}' \
             -e AWS_REGION='${{ secrets.AWS_REGION }}' \
-            ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/ \ ${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      - name: Cleanup local artifacts and prune Docker system
+      - name: Cleanup
         run: |
           source ~/myenv/bin/activate
-          rm -f model.pkl
+          rm -f saved_model/model.pkl
           docker system prune -f
