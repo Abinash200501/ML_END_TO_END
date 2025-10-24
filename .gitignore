@@ -77,7 +77,5 @@ poetry.lock
 *.pt
 *.joblib
 *.onnx
-models/
 checkpoints/
 runs/
-/saved_model
