@@ -17,7 +17,6 @@ build/
 mlopsproject.pem
 
 # === Virtual Environment ===
-myvenv/
 myenv/
 venv/
 .venv/
