@@ -29,7 +29,7 @@ def check_trained_model_exists():
 @click.option("--learning-rate", default=0.0002, type=click.FLOAT, help="Learning rate for training.")
 @click.option("--num-epochs", default=2, type=click.INT, help="Number of training epochs.")
 @click.option("--num-of-labels", default=1, type=click.INT, help="Number of classification labels.")
-@click.option("--batch-size", default=8, type=click.INT, help="Batch size for data loading.")
+@click.option("--batch-size", default=16, type=click.INT, help="Batch size for data loading.")
 
 def main(
     load_data: bool,

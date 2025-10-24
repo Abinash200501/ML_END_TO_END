@@ -7,5 +7,3 @@ from zenml import pipeline
 def model_training(no_of_epoch, lr, num_of_labels):
     training_batch = load_training_pipeline()
     model = training_model(training_batch, no_of_epoch, lr, num_of_labels)
-    testing_batch = load_testing_pipeline()
-    accuracy, precision, recall, score = evaluation_model(model, testing_batch)

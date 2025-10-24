@@ -70,7 +70,7 @@ jobs:
           set -e
           source ~/myenv/bin/activate
           if [ ! -f saved_model/model.pkl ]; then
-            echo "No model found. Training new model..."
+            echo "No model found. Training new model..."    
             python run_pipeline.py --load-data --path "data/SMSSpamCollection" || { echo "Data loading failed"; exit 1; }
             echo "Data loaded successfully."
 
@@ -91,11 +91,13 @@ jobs:
           source ~/myenv/bin/activate
           python accuracy.py
           if [ -f accuracy.txt ]; then
-            git config --global user.name "${CI_COMMIT_AUTHOR}"
-            git config --global user.email "abinashdevendran@gmail.com"
-            git add accuracy.txt
-            git commit -m "${CI_COMMIT_MESSAGE}" || echo "No changes to commit"
-            git push
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "Abinash200501@users.noreply.github.com"
+          git add accuracy.txt
+          git commit -m "${CI_COMMIT_MESSAGE}" || echo "No changes to commit"
+          
+          # Push using GitHub Actions token
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Abinash200501/ML_END_TO_END.git HEAD:main
           fi
 
       - name: Threshold check
@@ -128,14 +130,13 @@ jobs:
       - name: Commit and push DVC changes only if model changed
         if: success()
         run: |
-          git config --global user.name "${CI_COMMIT_AUTHOR}"
-          git config --global user.email "abinashdevendran@gmail.com"
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "Abinash200501@users.noreply.github.com"
           git add saved_model/model.pkl.dvc saved_model/.gitignore
           if ! git diff --cached --quiet; then
             echo "Changes detected in model. Committing..."
             git commit -m "${CI_COMMIT_MESSAGE}"
-            git push
-          else
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Abinash200501/ML_END_TO_END.git HEAD:main          else
             echo "No changes in model. Skipping commit."
           fi
           dvc push
