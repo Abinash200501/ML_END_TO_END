@@ -160,6 +160,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
+      - name: Clean previous docker images or containers
+
       - name: Setup Python & DVC
         run: |
           sudo apt-get update
@@ -169,11 +171,8 @@ jobs:
           fi
           source ~/myenv/bin/activate
           pip install --upgrade pip
-          if ! pip show -r requirements.txt >/dev/null 2>&1; then
-            pip install -r requirements.txt
-          fi
           if ! pip show dvc >/dev/null 2>&1; then
-            pip install dvc[s3]
+            pip install dvc[s3] boto3 --cache-dir /tmp/pip_cache
           fi
 
       - name: Cache DVC model
