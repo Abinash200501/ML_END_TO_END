@@ -75,7 +75,8 @@ jobs:
       - name: Accuracy check
         run: |
           set -e
-          python accuracy.py
+          if [ ! -f accuracy.py ]; then
+            python accuracy.py
           if [ -f accuracy.txt ]; then
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "Abinash200501@users.noreply.github.com"
