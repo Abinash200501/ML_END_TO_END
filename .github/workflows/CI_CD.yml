@@ -113,7 +113,8 @@ jobs:
             echo "Error: accuracy.txt not found. Evaluation step may have failed."
             exit 1
           fi
-          accuracy=$(cat accuracy.txt)
+        
+          accuracy=$(grep "Accuracy:" accuracy.txt | awk '{print $2}')
           threshold=0.90
           echo "accuracy=$accuracy" >> $GITHUB_OUTPUT
           if (( $(echo "$accuracy < $threshold" | bc -l) )); then
