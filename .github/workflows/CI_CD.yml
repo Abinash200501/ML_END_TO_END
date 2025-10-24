@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: SMS Spam Classifier
 
 on:
   push:
@@ -133,14 +133,6 @@ jobs:
           fi
           dvc push
 
-  name: CD Pipeline
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
   cd_pipeline:
     runs-on: self-hosted
     needs: ci_pipeline
