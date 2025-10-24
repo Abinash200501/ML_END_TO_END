@@ -75,7 +75,7 @@ jobs:
             echo "Data loaded successfully."
 
             echo "Starting model training..."
-            python run_pipeline.py --train-model --num-epochs 2 --num-of-labels 1 --learning-rate 0.00001 || { echo "Training failed"; exit 1; }
+            python run_pipeline.py --train-model --num-epochs 1 --num-of-labels 1 --learning-rate 0.00001 || { echo "Training failed"; exit 1; }
             echo "Training completed."
 
             echo "Running model evaluation..."
