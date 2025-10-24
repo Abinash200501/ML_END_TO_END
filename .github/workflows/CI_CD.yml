@@ -34,23 +34,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Cache virtualenv
-        uses: actions/cache@v3
-        with:
-          path: ~/myenv
-          key: ${{ runner.os }}-venv-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-
-
-      - name: Activate Virtual Env and Install dependencies
+      - name: Install dependencies
         run: |
           set -e
-          if [ ! -d ~/myenv ]; then
-            echo "Creating virtual environment..."
-            sudo apt-get install -y python3-venv
-            python3 -m venv ~/myenv
-          fi
-          source ~/myenv/bin/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install 'dvc[s3]'
@@ -59,12 +45,10 @@ jobs:
 
       - name: Start ZenML server
         run: |
-          source ~/myenv/bin/activate
           nohup zenml up &  # Run ZenML server in background
 
       - name: Check DVC version and pull existing model
         run: |
-          source ~/myenv/bin/activate
           dvc --version
           dvc remote list
           dvc pull saved_model/model.pkl || echo "No existing model found to pull."
@@ -72,7 +56,6 @@ jobs:
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
           set -e
-          source ~/myenv/bin/activate
           if [ ! -f saved_model/model.pkl ]; then
             echo "No model found. Training new model..."    
             python run_pipeline.py --load-data --path "data/SMSSpamCollection" || { echo "Data loading failed"; exit 1; }
@@ -92,7 +75,6 @@ jobs:
       - name: Accuracy check
         run: |
           set -e
-          source ~/myenv/bin/activate
           python accuracy.py
           if [ -f accuracy.txt ]; then
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
@@ -107,7 +89,6 @@ jobs:
       - name: Threshold check
         run: |
           set -e
-          source ~/myenv/bin/activate
           echo "Checking model accuracy threshold..."
           if [ ! -f accuracy.txt ]; then
             echo "Error: accuracy.txt not found. Evaluation step may have failed."
@@ -127,7 +108,6 @@ jobs:
       - name: Configure and track model with DVC
         if: success()
         run: |
-          source ~/myenv/bin/activate
           if [ -f saved_model/model.pkl ]; then
             dvc add saved_model/model.pkl
           fi
@@ -173,17 +153,11 @@ jobs:
       - name: Install Python and DVC
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pip python3-venv
-          if [ ! -d ~/myenv ]; then
-            python3 -m venv ~/myenv
-          fi
-          source ~/myenv/bin/activate
           python3 -m pip install --upgrade pip
           pip install dvc[s3]
 
       - name: Get model from DVC
         run: |
-          source ~/myenv/bin/activate
           dvc pull saved_model/model.pkl
           ls -lh saved_model/
 
@@ -199,7 +173,7 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Pull latest image and cleanup old containers/images
-        run: |
+        run: 
           docker rm -f $(docker ps -q) || true
           docker rmi $(docker images -q) || true
           docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
