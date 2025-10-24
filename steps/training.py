@@ -66,18 +66,21 @@ def training_model(training_data: DataLoader, epoch: int, lr: float,  num_of_lab
         mlflow.log_metric("average_loss", avg_loss, step=epoch_idx)
         logging.info(f"Epoch {epoch_idx + 1} average loss: {avg_loss:.5f}")
 
+    logging.info("Started training evaluation")
     model.eval()
     all_preds = []
     all_labels = []
 
     with torch.no_grad():
-        for batch in training_data:
+        for batch in tqdm(training_data, desc="Training evaluation started"):
             batch = {k: v.to(device) for k, v in batch.items()}
             logits = model(**batch).logits
             probs = torch.sigmoid(logits).squeeze(-1)
             preds = (probs >= 0.5)
             all_preds.extend(preds.cpu().long().tolist())
             all_labels.extend(batch['labels'].cpu().long().tolist())
+
+    logging.info("Training evaluation completed")
 
     accuracy = accuracy_score(all_labels, all_preds)
     mlflow.log_metric("train_accuracy", accuracy, step=epoch_idx)
