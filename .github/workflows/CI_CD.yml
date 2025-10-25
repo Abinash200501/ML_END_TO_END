@@ -56,7 +56,7 @@ jobs:
       - name: Train and Evaluate model (only if model doesn't exist)
         run: |
           set -e
-          if [ ! -f saved_model/model.pkl ]; then
+          if [ ! -f saved_model/model.pkl.dvc ]; then
             echo "No model found. Training new model..."    
             python run_pipeline.py --load-data --path "data/SMSSpamCollection" || { echo "Data loading failed"; exit 1; }
             echo "Data loaded successfully."
@@ -123,8 +123,8 @@ jobs:
         run: |
           git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
           git config --global user.email "Abinash200501@users.noreply.github.com"
-          if [ -f saved_model/.gitignore ]; then
-            git add saved_model/model.pkl.dvc 
+          if [ -f saved_model/model.pkl.dvc ]; then
+            git add saved_model/.gitignore
           else
             git add saved_model/model.pkl.dvc saved_model/.gitignore
           fi
