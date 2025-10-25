@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 import uvicorn
 import pickle
+from fastapi.staticfiles import StaticFiles
 from message import Message
 import torch
 from pathlib import Path
 import subprocess
+from fastapi.responses import FileResponse
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 model_path = Path("saved_model") / "model.pkl"
 
@@ -23,7 +27,7 @@ tokenizer = model_data['tokenizer']
 
 @app.get("/")
 def home():
-    return {"Greeting:":"Welcome to the Spam classification"}
+    return FileResponse("static/index.html")
 
 @app.post("/predict")
 def predict(message: Message):
