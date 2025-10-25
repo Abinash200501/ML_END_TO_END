@@ -79,5 +79,9 @@ poetry.lock
 checkpoints/
 runs/
 
+# === Allow DVC metadata ===
+!*.dvc
+!saved_model/.gitignore
+
 # ===Files to ignore===
-misclassified_samples_test.csv
+misclassified_samples_test*
