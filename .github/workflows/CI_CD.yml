@@ -182,14 +182,21 @@ jobs:
           path: .dvc/cache
           key: ${{ runner.os }}-dvc-${{ hashFiles('saved_model/model.pkl.dvc') }}
 
+      - name: Checking DVC remote
+        run: |
+          echo "Configured DVC remotes:"
+          dvc remote list || echo "No remotes found."
+
       - name: Get model from DVC
         run: |
           source ~/myenv/bin/activate
-          if ! dvc remote list | grep -q myremote; then
-            dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
+          if ! dvc remote list | grep -q '^myremote'; then
+            dvc remote add myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
+            dvc remote default myremote
           fi
           dvc pull saved_model/model.pkl || echo "DVC pull completed"
           ls -lh saved_model/
+
 
       - name: Build, tag, and push Docker image to Amazon ECR
         id: build-image
