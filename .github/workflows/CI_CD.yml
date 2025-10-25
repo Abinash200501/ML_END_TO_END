@@ -106,14 +106,20 @@ jobs:
           else
             echo "Model accuracy $accuracy% meets threshold $threshold."
           fi
-
+      - name: Checking DVC remote
+        run: |
+          echo "Configured DVC remotes:"
+          dvc remote list || echo "No remotes found."
+          
       - name: Configure and track model with DVC
         if: success()
         run: |
           if [ ! -d .dvc ]; then
             dvc init
           fi
-          dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
+          if ! dvc remote list | grep -q '^myremote'; then
+            dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
+          fi
           if [ -f saved_model/model.pkl ]; then
             dvc add saved_model/model.pkl
           fi
