@@ -16,9 +16,14 @@ Create an IAM user with following permission:
 sudo apt update
 sudo apt install python3-pip
 sudo pip3 install pipenv
-sudo pip3 install virtualenv
+curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+sudo apt-get install unzip
+unzip awscli-bundle.zip
+sudo apt-get install python3-venv
 mkdir mlflow
 cd mlflow
+python -m venv myenv
+source myenv/bin/activate
 pipenv install mlflow
 pipenv install awscli
 pipenv install boto3
@@ -42,3 +47,45 @@ mlflow server -h 0.0.0.0 --default-artifact-root s3://dvc-remote-storage01 --all
 	dvc add saved_model/
 	dvc push
 	```
+
+## Setup For GitHub Actions
+
+* Create an IAM user with following access:
+	- AmazonEC2ContainerRegistryFullAccess
+	- AmazonEC2FullAccess
+* Create an ECR repository and copy the URI
+* Create an EC2 instance with Ubuntu t2.micro. After creating the machine run the following Commands:
+	```bash
+	sudo apt-get update -y
+	sudo apt-get upgrade -y
+	curl -fsSL https://get.docker.com -o get-docker.sh
+	sudo sh get-docker.sh
+	sudo usermod -aG docker ubuntu
+	newgrp docker
+	sudo apt-get install python3-pip
+	pip install dvc==3.45.0 dvc[s3] boto3==1.34.34
+	pip install pyOpenSSL --upgrade
+	```
+
+* Install AWS CLI:
+	```bash
+	curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+	sudo apt-get install unzip
+	unzip awscli-bundle.zip
+	sudo apt-get install python3-venv
+	sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+	aws Configure #input the IAM user credentials
+	```
+* Restart the EC2 machine
+* Finally, in the Security Group of the EC2 Machine add a new rule to access the docker server 0.0.0.0/0 on port 8000
+
+* Go to (in GitHub Repo) settings>actions>runner>new self hosted runner>linux
+* A list of commands will be shown on the github page copy and paste it in the EC2 machine one by one
+* Setup The Following secrets:
+	```bash
+	AWS_ACCESS_KEY_ID=
+	AWS_SECRET_ACCESS_KEY=
+	AWS_REGION= 
+	ECR_REPOSITORY_UI= 
+	ECR_REPOSITORY_NAME= 
+	MLFLOW_TRACKING_URI=

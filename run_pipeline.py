@@ -79,6 +79,6 @@ def main(
 
 if __name__ == "__main__":
 
-    mlflow.set_tracking_uri("http://ec2-13-221-255-42.compute-1.amazonaws.com:5000/")
+    mlflow.set_tracking_uri("http://ec2-15-207-51-133.ap-south-1.compute.amazonaws.com:5000/")
     mlflow.set_experiment("Spam_Classifier_Experiment")
     main()

@@ -15,6 +15,7 @@ build/
 
 # === Secrets === #
 mlopsproject.pem
+misclassified_samples_test.csv
 
 # === Virtual Environment ===
 myenv/
