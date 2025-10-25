@@ -110,7 +110,7 @@ jobs:
         run: |
           echo "Configured DVC remotes:"
           dvc remote list || echo "No remotes found."
-          
+
       - name: Configure and track model with DVC
         if: success()
         run: |
@@ -140,10 +140,10 @@ jobs:
           if ! git diff --cached --quiet; then
             echo "Changes detected in model. Committing..."
             git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
-            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Abinash200501/ML_END_TO_END.git HEAD:main
-            dvc push          
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Abinash200501/ML_END_TO_END.git HEAD:main          
           else
-            echo "No changes in model. Skipping commit and push."
+            echo "No changes in model. Skipping commit"
+          dvc push
           fi
           
 
@@ -195,6 +195,7 @@ jobs:
 
       - name: Checking DVC remote
         run: |
+          source ~/myenv/bin/activate
           echo "Configured DVC remotes:"
           dvc remote list || echo "No remotes found."
 
@@ -205,6 +206,8 @@ jobs:
             dvc remote add myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
             dvc remote default myremote
           fi
+          echo "Configured DVC remotes:"
+          dvc remote list || echo "No remotes found."
           dvc pull saved_model/model.pkl || echo "DVC pull completed"
           ls -lh saved_model/
 
