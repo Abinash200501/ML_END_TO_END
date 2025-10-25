@@ -15,7 +15,6 @@ build/
 
 # === Secrets === #
 mlopsproject.pem
-misclassified_samples_test.csv
 
 # === Virtual Environment ===
 myenv/
@@ -79,3 +78,6 @@ poetry.lock
 *.onnx
 checkpoints/
 runs/
+
+# ===Files to ignore===
+misclassified_samples_test.csv
