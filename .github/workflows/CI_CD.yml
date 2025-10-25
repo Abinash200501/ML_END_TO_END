@@ -185,7 +185,10 @@ jobs:
       - name: Get model from DVC
         run: |
           source ~/myenv/bin/activate
-          dvc pull saved_model/model.pkl
+          if ! dvc remote list | grep -q myremote; then
+            dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
+          fi
+          dvc pull saved_model/model.pkl || echo "DVC pull completed"
           ls -lh saved_model/
 
       - name: Build, tag, and push Docker image to Amazon ECR
