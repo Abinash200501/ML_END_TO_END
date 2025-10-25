@@ -106,11 +106,11 @@ jobs:
           else
             echo "Model accuracy $accuracy% meets threshold $threshold."
           fi
-          
+
       - name: Checking DVC remote
         run: |
           echo "Configured DVC remotes:"
-          dvc remote list || echo "No remotes found."
+          $ dvc remote list || echo "No remotes found."
 
       - name: Configure and track model with DVC
         if: success()
