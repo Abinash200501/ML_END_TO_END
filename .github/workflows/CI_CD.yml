@@ -212,17 +212,17 @@ jobs:
       - name: Debug ECR registry
         run: | 
           echo "ECR REGISTRY = $ECR_REGISTRY"
-          echo "ECR_REPOSITORY_NAME: $ECR_REPOSITORY_NAME }}"
+          echo "ECR_REPOSITORY_NAME: $ECR_REPOSITORY"
 
       - name: Run Docker container
         run: |
           source ~/myenv/bin/activate
           docker run -d -p 8000:8000 \
-            --name spam_classifier \
-            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-            $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest
+          --name spam_classifier \
+          -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -e AWS_REGION="${{ secrets.AWS_REGION }}" \
+          $ECR_REGISTRY/$ECR_REPOSITORY_NAME:latest
 
 
       - name: Cleanup
