@@ -112,8 +112,8 @@ jobs:
         run: |
           if [ ! -d .dvc ]; then
             dvc init
-            dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
           fi
+          dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model
           if [ -f saved_model/model.pkl ]; then
             dvc add saved_model/model.pkl
           fi
