@@ -13,5 +13,6 @@ COPY accuracy.py ./accuracy.py
 COPY message.py ./message.py
 COPY api.py ./api.py
 COPY run_pipeline.py ./run_pipeline.py
+COPY static/ ./static/
 EXPOSE 8000
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
