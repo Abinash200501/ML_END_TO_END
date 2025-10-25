@@ -111,6 +111,7 @@ jobs:
         if: success()
         run: |
           if [ -f saved_model/model.pkl ]; then
+            dvc init
             dvc add saved_model/model.pkl
           fi
 

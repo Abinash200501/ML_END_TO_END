@@ -45,13 +45,12 @@ Create an IAM user with the following access and with access key:
 * Finally, in the Security Group of the EC2 Machine add a new rule to access the mlflow server 0.0.0.0/0 on port 5000
 
     ```bash 
-    mlflow server -host 0.0.0.0 --default-artifact-root s3://dvc-remote-storage01/mlflow --allowed-hosts '*'
+    mlflow server --host 0.0.0.0 --default-artifact-root s3://mlops-bucket-storage-01/mlflow --allowed-hosts '*'
     ```
 * DVC to Remote setup
     Install git, DVC, AWS-CLI, dvc[s3], boto3 locally
     ```bash
     aws configure #setup IAM user credentials
-    Intialise dvc using "dvc init"
     dvc remote add -d <remote-name> s3://dvc-remote-storage01/saved_model
     dvc add saved_model/
     dvc push
