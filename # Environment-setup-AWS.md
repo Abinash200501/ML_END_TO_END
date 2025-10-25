@@ -51,7 +51,7 @@ Create an IAM user with the following access and with access key:
     Install git, DVC, AWS-CLI, dvc[s3], boto3 locally
     ```bash
     aws configure #setup IAM user credentials
-    dvc remote add -d <remote-name> s3://dvc-remote-storage01/saved_model
+    dvc remote add -d <remote-name> s3://<s3 bucket-name>/saved_model
     dvc add saved_model/
     dvc push
 
