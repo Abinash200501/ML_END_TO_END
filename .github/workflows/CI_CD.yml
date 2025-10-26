@@ -50,7 +50,7 @@ jobs:
       - name: Configure DVC remote
         run: |
           dvc init --no-scm || true
-          dvc remote add -d myremote s3://${{ env.AWS_S3_BUCKET }}/saved_model || true
+          dvc remote add -d myremote s3://${{ secrets.AWS_S3_BUCKET }}/saved_model || true
           dvc remote default myremote
           dvc remote list
 
@@ -219,8 +219,7 @@ jobs:
               docker rm -f $containers
           fi
           docker image prune -f
-          docker pull ${{ steps.login-ecr.outputs.registry }}/\
-          ${{ secrets.ECR_REPOSITORY_NAME }}:$IMAGE_TAG
+          docker pull ${{ ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:$IMAGE_TAG
 
       - name: Debug ECR registry
         run: | 
