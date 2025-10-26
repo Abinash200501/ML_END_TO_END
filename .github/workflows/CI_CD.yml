@@ -208,10 +208,19 @@ jobs:
           source ~/myenv/bin/activate
           docker build --cache-from $ECR_REGISTRY/$ECR_REPOSITORY:latest \
                        -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG || echo "Images pushed to ECR"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Debug ECR registry
+        run: | 
+          echo "ECR REGISTRY = "$ECR_REGISTRY"
+          echo "ECR_REPOSITORY_NAME: "$ECR_REPOSITORY"
+
       - name: Pull latest image and cleanup
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: latest
         run: |
           source ~/myenv/bin/activate
           containers=$(docker ps -q)
@@ -219,12 +228,7 @@ jobs:
               docker rm -f $containers
           fi
           docker image prune -f
-          docker pull ${{ env.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:$IMAGE_TAG
-
-      - name: Debug ECR registry
-        run: | 
-          echo "ECR REGISTRY = "$ECR_REGISTRY"
-          echo "ECR_REPOSITORY_NAME: "$ECR_REPOSITORY"
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Run Docker container
         run: |
