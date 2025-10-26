@@ -219,7 +219,7 @@ jobs:
               docker rm -f $containers
           fi
           docker image prune -f
-          docker pull ${{ ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:$IMAGE_TAG
+          docker pull ${{ env.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY_NAME }}:$IMAGE_TAG
 
       - name: Debug ECR registry
         run: | 
