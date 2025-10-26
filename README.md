@@ -48,12 +48,12 @@ The pipeline includes data ingestion, preprocessing, model training, evaluation,
 
 ## Prerequisites (Summary)
 
-    1. For detailed setup steps, refer to Environment Setup and Deployment Guide
-    2. AWS IAM user with required permissions
-    3. S3 bucket for DVC and MLflow tracking
-    4. EC2 instances for MLflow and deployment
-    5. ECR repository for Docker images
-    6. GitHub secrets configured for CI/CD
+1. For detailed setup steps, refer to [Environment Setup and Deployment Guide](./Environment-setup.md)
+2. AWS IAM user with required permissions
+3. S3 bucket for DVC and MLflow tracking
+4. EC2 instances for MLflow and deployment
+5. ECR repository for Docker images
+6. GitHub secrets configured for CI/CD
 
 ## License
 This project is licensed under the MIT License — feel free to use, modify, and build upon it.
