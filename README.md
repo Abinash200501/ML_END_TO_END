@@ -11,30 +11,54 @@ The pipeline includes data ingestion, preprocessing, model training, evaluation,
 
 ## System Architecture
 
-flowchart TD
-    A[DATA LAYER<br/>• SMS Dataset (ham/spam)<br/>• AWS S3 (MLflow artifacts + DVC models)]
+┌────────────────────────────────────────────────────────────────┐
+│                        DATA LAYER                              │
+│  • SMS Dataset (ham/spam labeled messages)                     │
+│  • AWS S3 (MLflow artifacts + DVC model storage)               │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
 
-    B[ORCHESTRATION LAYER (ZenML)]
-    B1[Data Pipeline<br/>Ingestion & Preprocessing]
-    B2[Training Pipeline<br/>BERT Fine-tuning]
-    B3[Evaluation Pipeline<br/>Metrics & Validation]
+┌────────────────────────────────────────────────────────────────┐
+│                   ORCHESTRATION LAYER (ZenML)                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │    Data      │→ |  Training    │→ │ Evaluation   │          │
+│  │  Pipeline    │  │  Pipeline    │  │ Pipeline     │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+│         Ingestion → Tokenization → Fine-tune BERT              │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
 
-    C[EXPERIMENT TRACKING<br/>(MLflow on AWS EC2)<br/>• Hyperparameters<br/>• Metrics<br/>• Artifacts<br/>• Run Comparison]
+┌────────────────────────────────────────────────────────────────┐
+│              EXPERIMENT TRACKING (MLflow on AWS EC2)           |
+│  • Logs: hyperparameters, metrics, artifacts                   │
+│  • Tracks: 20+ training runs with different configs            │
+│  • Registry: All model versions with metadata                  │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
 
-    D[MODEL VERSIONING<br/>(DVC + Git + S3)<br/>• Code: Git<br/>• Models: DVC<br/>• Remote: S3]
+┌────────────────────────────────────────────────────────────────┐
+│              MODEL VERSIONING (DVC + Git + S3)                 │
+│  • Code versioning: Git (training scripts, configs)            │
+│  • Model versioning: DVC (large binary model files)            │
+│  • Remote storage: S3 bucket for team collaboration            │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
 
-    E[DEPLOYMENT<br/>(FastAPI + Docker)<br/>• POST /predict<br/>• Auto DVC pull<br/>• Real-time inference]
+┌────────────────────────────────────────────────────────────────┐
+│                 DEPLOYMENT (FastAPI + Docker)                  │
+│  • REST API: POST /predict endpoint                            │
+│  • Container: Docker image with all dependencies               │
+│  • Auto-fetch: DVC pulls model if not present                  │
+│  • Inference: Real-time spam classification                    │
+└────────────────────────────────────────────────────────────────┘
+                              ↓
 
-    F[CI/CD<br/>(GitHub Actions)<br/>• Self-hosted AWS runner<br/>• Build & Push (ECR)<br/>• Deploy to EC2/ECS]
-
-    A --> B
-    B --> B1
-    B1 --> B2
-    B2 --> B3
-    B3 --> C
-    C --> D
-    D --> E
-    E --> F
+┌────────────────────────────────────────────────────────────────┐
+│                     CI/CD (GitHub Actions)                     │
+│  • Self-hosted runner on AWS                                   │
+│  • Automated: testing, building, deployment                    │
+│  • IAM permissions: EC2, ECR, S3 access                        │
+└────────────────────────────────────────────────────────────────┘
 
 ## Project Workflow
 
