@@ -9,6 +9,32 @@ This repository showcases how to take a machine learning model from experimentat
 The model identifies whether an SMS message is spam or not spam using Natural Language Processing (NLP).
 The pipeline includes data ingestion, preprocessing, model training, evaluation, and continuous deployment.
 
+## System Architecture
+
+flowchart TD
+    A[DATA LAYER<br/>• SMS Dataset (ham/spam)<br/>• AWS S3 (MLflow artifacts + DVC models)]
+
+    B[ORCHESTRATION LAYER (ZenML)]
+    B1[Data Pipeline<br/>Ingestion & Preprocessing]
+    B2[Training Pipeline<br/>BERT Fine-tuning]
+    B3[Evaluation Pipeline<br/>Metrics & Validation]
+
+    C[EXPERIMENT TRACKING<br/>(MLflow on AWS EC2)<br/>• Hyperparameters<br/>• Metrics<br/>• Artifacts<br/>• Run Comparison]
+
+    D[MODEL VERSIONING<br/>(DVC + Git + S3)<br/>• Code: Git<br/>• Models: DVC<br/>• Remote: S3]
+
+    E[DEPLOYMENT<br/>(FastAPI + Docker)<br/>• POST /predict<br/>• Auto DVC pull<br/>• Real-time inference]
+
+    F[CI/CD<br/>(GitHub Actions)<br/>• Self-hosted AWS runner<br/>• Build & Push (ECR)<br/>• Deploy to EC2/ECS]
+
+    A --> B
+    B --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> C
+    C --> D
+    D --> E
+    E --> F
 
 ## Project Workflow
 
