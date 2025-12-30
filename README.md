@@ -11,6 +11,7 @@ The pipeline includes data ingestion, preprocessing, model training, evaluation,
 
 ## System Architecture
 
+```bash
 ┌────────────────────────────────────────────────────────────────┐
 │                        DATA LAYER                              │
 │  • SMS Dataset (ham/spam labeled messages)                     │
