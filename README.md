@@ -41,7 +41,7 @@ The pipeline includes data ingestion, preprocessing, model training, evaluation,
 │              MODEL VERSIONING (DVC + Git + S3)                 │
 │  • Code versioning: Git (training scripts, configs)            │
 │  • Model versioning: DVC (large binary model files)            │
-│  • Remote storage: S3 bucket to team collaboration            │
+│  • Remote storage: S3 bucket to team collaboration             │
 └────────────────────────────────────────────────────────────────┘
                               ↓
 
@@ -49,7 +49,7 @@ The pipeline includes data ingestion, preprocessing, model training, evaluation,
 │                 DEPLOYMENT (FastAPI + Docker)                  │
 │  • REST API: POST /predict endpoint                            │
 │  • Container: Docker image with all dependencies               │
-│  • Auto-fetch: DVC pulls model when not present                  │
+│  • Auto-fetch: DVC pulls model when not present                │
 │  • Inference: Real-time spam classification                    │
 └────────────────────────────────────────────────────────────────┘
                               ↓
